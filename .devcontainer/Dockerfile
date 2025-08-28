@@ -1,0 +1,41 @@
+ARG VARIANT="1.24"
+ARG LINT="1.53.3"
+
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+FROM mcr.microsoft.com/vscode/devcontainers/go:${VARIANT}
+
+# Update packages
+RUN apt-get update
+
+# [Package] Install golangci-lint 
+RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2
+
+# [Package] Install act
+RUN curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# [Pakage] Install openapi
+RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+RUN chmod -R a+rwX /go/pkg
+
+RUN BIN="/usr/local/bin" && \
+    VERSION="1.26.1" && \
+    curl -sSL \
+    "https://github.com/bufbuild/buf/releases/download/v${VERSION}/buf-$(uname -s)-$(uname -m)" \
+    -o "${BIN}/buf" && \
+    chmod +x "${BIN}/buf"
+
+RUN apt-get install 
+RUN sudo apt-get install jsonnet
+
+# [Package] migrate 
+
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-arm64.tar.gz | tar xvz && \
+    mv migrate /usr/local/bin/migrate
+
+# [Package] wire
+
+RUN go install github.com/google/wire/cmd/wire@latest    

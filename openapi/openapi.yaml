@@ -1,0 +1,15 @@
+openapi: "3.0.0"
+info:
+  version: 0.1.5
+  title: BOT API
+  description: A main BOT API
+  contact:
+    name: API Team
+
+servers:
+  - url: "localhost:8080"
+    description: Dev server
+
+tags:
+  - user
+  - message
