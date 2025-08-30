@@ -3,11 +3,12 @@ YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
 RESET  := $(shell tput -Txterm sgr0)
 UTAG=user
-MTAG=message
+DTAG=debt
 CONFIG_OAPI=./openapi/.openapi
 OAPI_SCHEMA=./openapi/openapi.yaml
 OAPI_OUTPUT_U=./internal/ogenerated/$(UTAG)/api.gen.go
-OAPI_OUTPUT_M=./internal/ogenerated/$(MTAG)/api.gen.go
+OAPI_OUTPUT_D=./internal/ogenerated/$(DTAG)/api.gen.go
+MIG_DIR=./migrations
  
 ifneq (,$(wildcard ./.env))
     include .env
@@ -28,17 +29,17 @@ help:
 
 .PHONY: gen 
 gen:
-	for tag in user message; do \
+	for tag in user debt; do \
 	rm -rf ./internal/ogenerated/$$tag/; \
 	mkdir -p ./internal/ogenerated/$$tag/; \
 	done
 
 	oapi-codegen -config $(CONFIG_OAPI) -include-tags $(UTAG) -package $(UTAG) $(OAPI_SCHEMA) > $(OAPI_OUTPUT_U)
-	oapi-codegen -config $(CONFIG_OAPI) -include-tags $(MTAG) -package $(MTAG) $(OAPI_SCHEMA) > $(OAPI_OUTPUT_M)
+	oapi-codegen -config $(CONFIG_OAPI) -include-tags $(DTAG) -package $(DTAG) $(OAPI_SCHEMA) > $(OAPI_OUTPUT_D)
 
 .PHONY: migrate-new
 migrate-new:
-	migrate create -ext sql -dir $(MIG_DIR)	${NAME}
+	migrate create -ext sql -dir $(MIG_DIR) -seq $(name)
 
 .PHONY:	migrate
 migrate:

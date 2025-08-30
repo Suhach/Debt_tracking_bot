@@ -15,9 +15,13 @@ services:
     env_file:
       - ../.env
     environment:
-      - POSTGRES_USER: ${DB_USER}
-      - POSTGRES_PASS: ${DB_PASS}
-      - POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}  
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5400:5432"  
-    
+      - "5400:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

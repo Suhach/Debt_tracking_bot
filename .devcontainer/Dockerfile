@@ -1,41 +1,17 @@
-ARG VARIANT="1.24"
-ARG LINT="1.53.3"
+FROM golang:1.24.6 AS builder
 
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+WORKDIR /bot
 
-FROM mcr.microsoft.com/vscode/devcontainers/go:${VARIANT}
+COPY . .
 
-# Update packages
-RUN apt-get update
+RUN go build -o loan-bot
 
-# [Package] Install golangci-lint 
-RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2
+ENTRYPOINT [ "./loan-bot" ]
 
-# [Package] Install act
-RUN curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+FROM alpine
 
-# [Pakage] Install openapi
-RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+WORKDIR /ln-bot
 
-RUN chmod -R a+rwX /go/pkg
+COPY --from=builder ./bot/loan-bot ./binary
 
-RUN BIN="/usr/local/bin" && \
-    VERSION="1.26.1" && \
-    curl -sSL \
-    "https://github.com/bufbuild/buf/releases/download/v${VERSION}/buf-$(uname -s)-$(uname -m)" \
-    -o "${BIN}/buf" && \
-    chmod +x "${BIN}/buf"
-
-RUN apt-get install 
-RUN sudo apt-get install jsonnet
-
-# [Package] migrate 
-
-RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-arm64.tar.gz | tar xvz && \
-    mv migrate /usr/local/bin/migrate
-
-# [Package] wire
-
-RUN go install github.com/google/wire/cmd/wire@latest    
+ENTRYPOINT [ "./binary" ]
